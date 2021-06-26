@@ -1,0 +1,12 @@
+[package]
+name = "karyon"
+version = "0.1.0"
+authors = ["Arnie97 <arnie97@gmail.com>"]
+edition = "2018"
+description = "The tagging based semantic metadata storage"
+repository = "https://github.com/fg193/karyon"
+license = "MIT"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
