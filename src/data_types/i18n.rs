@@ -15,7 +15,6 @@ impl super::DataType<'_> for I18n {
 
 #[cfg(test)]
 mod test {
-    use simple_error::bail;
     use std::array::IntoIter;
     use std::collections::HashMap;
     use std::error::Error;
@@ -35,7 +34,7 @@ mod test {
         match ret.as_str() {
             r#"{"zh-CN":"中文","en-US":"English"}"# => Ok(()),
             r#"{"en-US":"English","zh-CN":"中文"}"# => Ok(()),
-            _ => Err(bail!("unexpected output: {}", ret)),
+            _ => Err(ret.into()),
         }
     }
 }

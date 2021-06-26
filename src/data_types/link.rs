@@ -12,7 +12,6 @@ impl super::DataType<'_> for Link {
 
 #[cfg(test)]
 mod test {
-    use simple_error::bail;
     use std::array::IntoIter;
     use std::collections::HashMap;
     use std::error::Error;
@@ -35,7 +34,7 @@ mod test {
         match ret.as_str() {
             r#"{"id":123,"label":{"zh-CN":"中文","en-US":"English"}}"# => Ok(()),
             r#"{"id":123,"label":{"en-US":"English","zh-CN":"中文"}}"# => Ok(()),
-            _ => Err(bail!("unexpected output: {}", ret)),
+            _ => Err(ret.into()),
         }
     }
 }
