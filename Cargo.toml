@@ -10,3 +10,9 @@ license = "MIT"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+chrono = { version = "0.4.19", features = ["std", "serde"], default-features = false }
+serde = { version = "1.0.126", features = ["derive"] }
+serde_json = "1.0.64"
+
+[dev-dependencies]
+simple-error = "0.2.3"
