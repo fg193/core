@@ -32,8 +32,12 @@ mod test {
 
         let ret = serde_json::to_string(&link)?;
         match ret.as_str() {
-            r#"{"id":123,"label":{"zh-CN":"中文","en-US":"English"}}"# => Ok(()),
-            r#"{"id":123,"label":{"en-US":"English","zh-CN":"中文"}}"# => Ok(()),
+            r#"{"id":123,"label":{"zh-CN":"中文","en-US":"English"}}"# => {
+                Ok(())
+            }
+            r#"{"id":123,"label":{"en-US":"English","zh-CN":"中文"}}"# => {
+                Ok(())
+            }
             _ => Err(ret.into()),
         }
     }

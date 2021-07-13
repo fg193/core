@@ -1,0 +1,7 @@
+DROP TABLE IF EXISTS karyon_entity;
+DROP TABLE IF EXISTS karyon_attr;
+DROP TABLE IF EXISTS karyon_i18n;
+DROP TABLE IF EXISTS karyon_link;
+
+DROP EXTENSION IF EXISTS pg_trgm;
+DROP EXTENSION IF EXISTS btree_gin;

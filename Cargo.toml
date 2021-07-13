@@ -10,6 +10,13 @@ license = "MIT"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+actix-web = "4.0.0-beta.8"
+bb8-diesel = "0.3.0"
 chrono = { version = "0.4.19", features = ["std", "serde"], default-features = false }
+diesel = { version = "1.4.7", features = ["chrono", "postgres"], default-features = false }
+pretty_env_logger = "0.4.0"
 serde = { version = "1.0.126", features = ["derive"] }
 serde_json = "1.0.64"
+
+[patch.crates-io]
+bb8-diesel = { git = "https://github.com/dyedgreen/bb8-diesel" }

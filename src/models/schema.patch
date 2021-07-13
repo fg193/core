@@ -1,0 +1,28 @@
+diff --git i/src/models/schema.rs w/src/models/schema.rs
+index 8b12ff4..188fbf7 100644
+--- i/src/models/schema.rs
++++ w/src/models/schema.rs
+@@ -2 +4,2 @@ table! {
+-    karyon_attr (id) {
++    #[sql_name="karyon_attr"]
++    attrs (id) {
+@@ -14 +17,2 @@ table! {
+-    karyon_entity (id) {
++    #[sql_name="karyon_entity"]
++    entities (id) {
+@@ -27 +31,2 @@ table! {
+-    karyon_i18n (id) {
++    #[sql_name="karyon_i18n"]
++    i18ns (id) {
+@@ -37 +42,2 @@ table! {
+-    karyon_link (id) {
++    #[sql_name="karyon_link"]
++    links (id) {
+@@ -47,6 +53 @@ table! {
+-allow_tables_to_appear_in_same_query!(
+-    karyon_attr,
+-    karyon_entity,
+-    karyon_i18n,
+-    karyon_link,
+-);
++allow_tables_to_appear_in_same_query!(attrs, entities, i18ns, links);
