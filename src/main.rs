@@ -8,6 +8,7 @@ use std::error::Error;
 mod data_types;
 mod handlers;
 mod models;
+mod utils;
 
 type DbPool = Pool<Manager<PgConnection>>;
 

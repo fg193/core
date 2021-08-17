@@ -14,8 +14,9 @@ pub async fn get_entity(
 #[post("/entities/")]
 pub async fn create_entity(
     db: web::Data<DbPool>,
-    entity: web::Json<models::entity::Entity>,
+    mut entity: web::Json<models::entity::Entity>,
 ) -> Result<HttpResponse, Box<dyn Error>> {
+    models::entity::set_create_default_values(&mut entity);
     Ok(HttpResponse::Created()
         .json(models::entity::create(DbPool::clone(&db), &entity).await?))
 }

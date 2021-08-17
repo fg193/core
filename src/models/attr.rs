@@ -1,4 +1,5 @@
 use super::schema::attrs;
+use crate::utils::Id;
 
 #[derive(
     diesel::Associations,
@@ -10,11 +11,11 @@ use super::schema::attrs;
 )]
 #[table_name = "attrs"]
 pub struct Attr {
-    pub id: i64,
-    pub owner_entity: i64,
-    pub editor_entity: i64,
-    pub viewer_entity: i64,
-    pub author_entity: i64,
+    pub id: Id,
+    pub owner_entity: Id,
+    pub editor_entity: Id,
+    pub viewer_entity: Id,
+    pub author_entity: Id,
     pub create_time: crate::data_types::Time,
     pub modify_time: crate::data_types::Time,
 }

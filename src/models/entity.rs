@@ -1,5 +1,6 @@
 use super::schema::entities;
 use super::schema::entities::dsl::*;
+use crate::utils::Id;
 use diesel::prelude::*;
 use std::error::Error;
 
@@ -13,12 +14,12 @@ use std::error::Error;
 )]
 #[table_name = "entities"]
 pub struct Entity {
-    pub id: i64,
-    pub avatar_entity: Option<i64>,
-    pub owner_entity: i64,
-    pub editor_entity: i64,
-    pub viewer_entity: i64,
-    pub author_entity: i64,
+    pub id: Id,
+    pub avatar_entity: Option<Id>,
+    pub owner_entity: Id,
+    pub editor_entity: Id,
+    pub viewer_entity: Id,
+    pub author_entity: Id,
     pub create_time: chrono::DateTime<chrono::Utc>,
     pub modify_time: chrono::DateTime<chrono::Utc>,
 }
@@ -41,6 +42,12 @@ pub async fn create(
         .values(entity)
         .returning(id)
         .get_result(&*conn)?)
+}
+
+pub fn set_create_default_values(entity: &mut Entity) {
+    entity.id = Id::new();
+    entity.create_time = chrono::Utc::now();
+    entity.modify_time = entity.create_time;
 }
 
 pub async fn remove(

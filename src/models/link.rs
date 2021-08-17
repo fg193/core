@@ -1,4 +1,5 @@
 use super::schema::links;
+use crate::utils::Id;
 
 #[derive(
     diesel::Associations,
@@ -10,10 +11,10 @@ use super::schema::links;
 )]
 #[table_name = "links"]
 pub struct Link {
-    pub id: i64,
-    pub attr: Option<i64>,
-    pub src_entity: i64,
-    pub dest_entity: i64,
+    pub id: Id,
+    pub attr: Option<Id>,
+    pub src_entity: Id,
+    pub dest_entity: Id,
     pub direct: bool,
     pub ref_count: i64,
 }
