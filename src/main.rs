@@ -22,6 +22,15 @@ async fn main() -> Result<(), Box<dyn Error>> {
         actix_web::App::new()
             .app_data(actix_web::web::Data::new(db_pool.clone()))
             .wrap(actix_web::middleware::Logger::default())
+            .wrap(actix_identity::IdentityService::new(
+                actix_identity::CookieIdentityPolicy::new(
+                    match std::env::var("SESSION_KEY") {
+                        Ok(ref s) => s.as_bytes(),
+                        Err(_) => &[0; 32],
+                    },
+                )
+                .name("karyon-auth"),
+            ))
             .configure(handlers::api_routes)
     })
     .bind(std::env::var("BIND_ADDRESS").unwrap_or("localhost:8080".into()))?

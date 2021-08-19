@@ -22,7 +22,18 @@ const CROCKFORD: Encoding = new_encoding! {
     check_trailing_bits: false,
 };
 
-#[derive(AsExpression, Debug, Eq, FromSqlRow, Hash, PartialEq)]
+#[derive(
+    AsExpression,
+    Clone,
+    Copy,
+    Debug,
+    Eq,
+    FromSqlRow,
+    Hash,
+    Ord,
+    PartialEq,
+    PartialOrd,
+)]
 #[sql_type = "BigInt"]
 pub struct Id(i64);
 
@@ -82,6 +93,15 @@ impl From<&str> for Id {
                 }
             },
         )
+    }
+}
+
+impl From<actix_identity::Identity> for Id {
+    fn from(identity: actix_identity::Identity) -> Self {
+        match identity.identity() {
+            Some(s) => Id::from(s.as_str()),
+            None => Id::from(0u64),
+        }
     }
 }
 

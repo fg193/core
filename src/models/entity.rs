@@ -24,9 +24,23 @@ pub struct Entity {
     pub modify_time: chrono::DateTime<chrono::Utc>,
 }
 
+pub fn new(user_id: Id) -> Entity {
+    let now = chrono::Utc::now();
+    Entity {
+        id: Id::new(),
+        avatar_entity: None,
+        owner_entity: user_id,
+        editor_entity: user_id,
+        viewer_entity: user_id,
+        author_entity: user_id,
+        create_time: now,
+        modify_time: now,
+    }
+}
+
 pub async fn get(
     db: crate::DbPool,
-    entity_id: i64,
+    entity_id: Id,
 ) -> Result<Entity, Box<dyn Error>> {
     let conn = db.get().await?;
     Ok(entities.find(entity_id).first(&*conn)?)
@@ -35,7 +49,7 @@ pub async fn get(
 pub async fn create(
     db: crate::DbPool,
     entity: &Entity,
-) -> Result<i64, Box<dyn Error>> {
+) -> Result<Id, Box<dyn Error>> {
     let conn = db.get().await?;
 
     Ok(diesel::insert_into(entities)
@@ -44,15 +58,9 @@ pub async fn create(
         .get_result(&*conn)?)
 }
 
-pub fn set_create_default_values(entity: &mut Entity) {
-    entity.id = Id::new();
-    entity.create_time = chrono::Utc::now();
-    entity.modify_time = entity.create_time;
-}
-
 pub async fn remove(
     db: crate::DbPool,
-    entity_id: i64,
+    entity_id: Id,
 ) -> Result<Entity, Box<dyn Error>> {
     let conn = db.get().await?;
     Ok(entities.find(entity_id).first(&*conn)?)
