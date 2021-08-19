@@ -39,7 +39,7 @@ pub fn new(user_id: Id) -> Entity {
 }
 
 pub async fn get(
-    db: crate::DbPool,
+    db: crate::Pool,
     entity_id: Id,
 ) -> Result<Entity, Box<dyn Error>> {
     let conn = db.get().await?;
@@ -47,7 +47,7 @@ pub async fn get(
 }
 
 pub async fn create(
-    db: crate::DbPool,
+    db: crate::Pool,
     entity: &Entity,
 ) -> Result<Id, Box<dyn Error>> {
     let conn = db.get().await?;
@@ -59,7 +59,7 @@ pub async fn create(
 }
 
 pub async fn remove(
-    db: crate::DbPool,
+    db: crate::Pool,
     entity_id: Id,
 ) -> Result<Entity, Box<dyn Error>> {
     let conn = db.get().await?;

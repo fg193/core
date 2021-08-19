@@ -1,16 +1,13 @@
 #[macro_use]
 extern crate diesel;
 
-use bb8_diesel::{bb8::Pool, DieselConnectionManager as Manager};
-use diesel::pg::PgConnection;
+use deadpool_diesel::postgres::{Manager, Pool};
 use std::error::Error;
 
 mod data_types;
 mod handlers;
 mod models;
 mod utils;
-
-type DbPool = Pool<Manager<PgConnection>>;
 
 #[actix_web::main]
 async fn main() -> Result<(), Box<dyn Error>> {
@@ -40,8 +37,8 @@ async fn main() -> Result<(), Box<dyn Error>> {
     Ok(())
 }
 
-pub async fn init_db_pool() -> Result<DbPool, Box<dyn Error>> {
+pub async fn init_db_pool() -> Result<Pool, Box<dyn Error>> {
     let database_url = std::env::var("DATABASE_URL")?;
-    let manager = Manager::<PgConnection>::new(database_url);
-    Ok(Pool::builder().build(manager).await?)
+    let manager = Manager::new(database_url);
+    Ok(Pool::new(manager, 32))
 }
