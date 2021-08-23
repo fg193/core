@@ -7,8 +7,9 @@ use diesel::{
     sql_types::{BigInt, HasSqlType},
 };
 use rand::Rng;
+use serde::{de::Error as _, ser::Error as _};
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
-use std::convert::TryInto;
+use std::convert::{TryFrom, TryInto};
 use std::io::Write;
 use std::time::{SystemTime, UNIX_EPOCH};
 
@@ -21,6 +22,26 @@ const CROCKFORD: Encoding = new_encoding! {
     padding: None,
     check_trailing_bits: false,
 };
+
+#[derive(Debug)]
+pub enum IdSerdeError {
+    Invalid(String),
+    None,
+}
+
+impl serde::ser::Error for IdSerdeError {
+    fn custom<T: std::fmt::Display>(msg: T) -> Self {
+        Self::Invalid(msg.to_string())
+    }
+}
+
+impl std::fmt::Display for IdSerdeError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        std::fmt::Debug::fmt(self, f)
+    }
+}
+
+impl std::error::Error for IdSerdeError {}
 
 #[derive(
     AsExpression,
@@ -53,7 +74,8 @@ impl<'de> Deserialize<'de> for Id {
     fn deserialize<D: Deserializer<'de>>(
         deserializer: D,
     ) -> Result<Self, D::Error> {
-        Ok(Id::from(String::deserialize(deserializer)?.as_str()))
+        Id::try_from(String::deserialize(deserializer)?.as_str())
+            .map_err(D::Error::custom)
     }
 }
 
@@ -82,25 +104,32 @@ impl From<u64> for Id {
     }
 }
 
-impl From<&str> for Id {
-    fn from(s: &str) -> Self {
-        Id(
-            match CROCKFORD.decode((s.to_ascii_uppercase() + "0").as_bytes()) {
-                Ok(v) => i64::from_be_bytes(v.try_into().unwrap()) >> 4,
-                Err(e) => {
-                    dbg!(e);
-                    0
-                }
-            },
-        )
+impl TryFrom<&str> for Id {
+    type Error = IdSerdeError;
+
+    fn try_from(s: &str) -> Result<Self, Self::Error> {
+        match CROCKFORD.decode((s.to_ascii_uppercase() + "0").as_bytes()) {
+            Ok(bytes) => Ok(Id(i64::from_be_bytes(
+                bytes.try_into().map_err(|bytes: Vec<u8>| {
+                    IdSerdeError::Invalid(format!(
+                        "Invalid array length: {}",
+                        bytes.len(),
+                    ))
+                })?,
+            ) >> 4)),
+
+            Err(e) => Err(IdSerdeError::custom(e)),
+        }
     }
 }
 
-impl From<actix_identity::Identity> for Id {
-    fn from(identity: actix_identity::Identity) -> Self {
-        match identity.identity() {
-            Some(s) => Id::from(s.as_str()),
-            None => Id::from(0u64),
+impl TryFrom<actix_identity::Identity> for Id {
+    type Error = IdSerdeError;
+
+    fn try_from(token: actix_identity::Identity) -> Result<Self, Self::Error> {
+        match token.identity() {
+            Some(s) => Id::try_from(s.as_str()),
+            None => Err(IdSerdeError::None),
         }
     }
 }
@@ -150,12 +179,13 @@ impl From<&Id> for String {
 mod test {
     use crate::utils::id::Id;
     use std::collections::HashSet;
+    use std::convert::TryFrom;
 
     #[test]
     fn test_from() {
         assert_eq!(
-            Id::from("80FF-0F0F-55AA"),
-            Id::from(0x_0401_EF03_C0F2_954A_u64)
+            Id::try_from("80FF-0F0F-55AA").ok(),
+            Some(Id::from(0x_0401_EF03_C0F2_954A_u64))
         );
     }
 
@@ -169,7 +199,7 @@ mod test {
             generated.insert(i64::from(&i));
 
             let s = String::from(&i);
-            assert_eq!(i, Id::from(s.as_str()));
+            assert_eq!(Some(i), Id::try_from(s.as_str()).ok());
         }
     }
 }

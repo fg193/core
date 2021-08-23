@@ -18,6 +18,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
     actix_web::HttpServer::new(move || {
         actix_web::App::new()
             .app_data(actix_web::web::Data::new(db_pool.clone()))
+            .wrap(actix_web::middleware::NormalizePath::default())
             .wrap(actix_web::middleware::Logger::default())
             .wrap(actix_identity::IdentityService::new(
                 actix_identity::CookieIdentityPolicy::new(
