@@ -57,7 +57,7 @@ karyon_i18n (
 CREATE INDEX IF NOT EXISTS
 karyon_i18n_idx_entity_attr ON karyon_i18n USING BTREE (
     entity          ASC,
-    attr            ASC NULLS LAST
+    attr            ASC
 );
 
 CREATE INDEX IF NOT EXISTS
@@ -68,7 +68,7 @@ karyon_i18n_idx_value_attr ON karyon_i18n USING GIN (
 
 CREATE TABLE IF NOT EXISTS karyon_link (
     id              BIGINT NOT NULL,
-    attr            BIGINT,
+    attr            BIGINT NOT NULL,
     src_entity      BIGINT NOT NULL,
     dest_entity     BIGINT NOT NULL,
     direct          BOOLEAN NOT NULL,
@@ -78,18 +78,22 @@ CREATE TABLE IF NOT EXISTS karyon_link (
 );
 
 CREATE INDEX IF NOT EXISTS
-karyon_link_idx_src_count ON karyon_link USING BTREE (
+karyon_link_idx_attr_src_dest ON karyon_link USING BTREE (
+    attr            ASC,
     src_entity      ASC,
-    ref_count       ASC
+    dest_entity     ASC
 );
 
 CREATE INDEX IF NOT EXISTS
-karyon_link_idx_dest_count ON karyon_link USING BTREE (
+karyon_link_idx_attr_src_direct ON karyon_link USING BTREE (
+    attr            ASC,
+    src_entity      ASC,
+    direct          DESC
+);
+
+CREATE INDEX IF NOT EXISTS
+karyon_link_idx_attr_dest_direct ON karyon_link USING BTREE (
+    attr            ASC,
     dest_entity     ASC,
-    ref_count       ASC
-);
-
-CREATE INDEX IF NOT EXISTS
-karyon_link_idx_attr ON karyon_link USING BTREE (
-    attr            ASC NULLS LAST
+    direct          DESC
 );

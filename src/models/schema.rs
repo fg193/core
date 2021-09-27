@@ -40,7 +40,7 @@ table! {
     #[sql_name="karyon_link"]
     links (id) {
         id -> Int8,
-        attr -> Nullable<Int8>,
+        attr -> Int8,
         src_entity -> Int8,
         dest_entity -> Int8,
         direct -> Bool,
@@ -49,3 +49,5 @@ table! {
 }
 
 allow_tables_to_appear_in_same_query!(attrs, entities, i18ns, links);
+joinable!(i18ns -> entities(entity));
+joinable!(i18ns -> attrs(attr));

@@ -1,4 +1,5 @@
 use super::schema::i18ns;
+use crate::utils::Id;
 
 #[derive(
     diesel::Associations,
@@ -9,10 +10,12 @@ use super::schema::i18ns;
     serde::Deserialize,
 )]
 #[table_name = "i18ns"]
+#[belongs_to(Entity, foreign_key=entity)]
+#[belongs_to(Attr, foreign_key=attr)]
 pub struct I18n {
-    pub id: i64,
-    pub entity: i64,
-    pub attr: i64,
+    pub id: Id,
+    pub entity: Id,
+    pub attr: Id,
     pub lang: String,
     pub value: String,
 }

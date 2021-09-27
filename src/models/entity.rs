@@ -1,5 +1,5 @@
 use super::schema::entities;
-use super::schema::entities::dsl::*;
+use super::schema::i18ns;
 use crate::utils::Id;
 use diesel::prelude::*;
 use std::error::Error;
@@ -13,6 +13,11 @@ use std::error::Error;
     serde::Deserialize,
 )]
 #[table_name = "entities"]
+#[belongs_to(Entity, foreign_key=avatar_entity)]
+#[belongs_to(Entity, foreign_key=owner_entity)]
+#[belongs_to(Entity, foreign_key=editor_entity)]
+#[belongs_to(Entity, foreign_key=viewer_entity)]
+#[belongs_to(Entity, foreign_key=author_entity)]
 pub struct Entity {
     pub id: Id,
     pub avatar_entity: Option<Id>,
@@ -43,7 +48,20 @@ pub async fn get(
     entity_id: Id,
 ) -> Result<Entity, Box<dyn Error>> {
     let conn = db.get().await?;
-    Ok(entities.find(entity_id).first(&*conn)?)
+    Ok(entities::table.find(entity_id).first(&*conn)?)
+}
+
+pub async fn get_by_label(
+    db: crate::Pool,
+    label: &str,
+) -> Result<Vec<Id>, Box<dyn Error>> {
+    let conn = db.get().await?;
+
+    Ok(entities::table
+        .select(entities::id)
+        .inner_join(i18ns::table)
+        .filter(i18ns::value.ilike(format!("%{}%", label)))
+        .load(&*conn)?)
 }
 
 pub async fn create(
@@ -52,18 +70,19 @@ pub async fn create(
 ) -> Result<Id, Box<dyn Error>> {
     let conn = db.get().await?;
 
-    Ok(diesel::insert_into(entities)
+    Ok(diesel::insert_into(entities::table)
         .values(entity)
-        .returning(id)
+        .returning(entities::id)
         .get_result(&*conn)?)
 }
 
 pub async fn remove(
     db: crate::Pool,
     entity_id: Id,
-) -> Result<Entity, Box<dyn Error>> {
+) -> Result<(), Box<dyn Error>> {
     let conn = db.get().await?;
-    Ok(entities.find(entity_id).first(&*conn)?)
+    let entity = entities::table.find(entity_id).first(&*conn)?;
+    Ok(())
 }
 
 #[cfg(test)]
