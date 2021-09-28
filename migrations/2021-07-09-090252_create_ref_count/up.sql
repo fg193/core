@@ -77,23 +77,28 @@ CREATE TABLE IF NOT EXISTS karyon_link (
     PRIMARY KEY(id)
 );
 
-CREATE INDEX IF NOT EXISTS
+-- where attr = x and src_entity = list_my_links
+-- where attr = x and src_entity = proposed and dest_entity = proposed
+CREATE UNIQUE INDEX IF NOT EXISTS
 karyon_link_idx_attr_src_dest ON karyon_link USING BTREE (
     attr            ASC,
     src_entity      ASC,
     dest_entity     ASC
 );
 
+-- where src_entity = list_my_links and direct = true
 CREATE INDEX IF NOT EXISTS
-karyon_link_idx_attr_src_direct ON karyon_link USING BTREE (
-    attr            ASC,
+karyon_link_idx_src_direct ON karyon_link USING BTREE (
     src_entity      ASC,
     direct          DESC
 );
 
+-- where dest_entity = list_my_back_links
+-- where dest_entity = list_my_back_links and attr = x
+-- where dest_entity = list_my_back_links and attr = x and direct = true
 CREATE INDEX IF NOT EXISTS
-karyon_link_idx_attr_dest_direct ON karyon_link USING BTREE (
-    attr            ASC,
+karyon_link_idx_dest_attr_direct ON karyon_link USING BTREE (
     dest_entity     ASC,
+    attr            ASC,
     direct          DESC
 );

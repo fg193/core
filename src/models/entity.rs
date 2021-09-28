@@ -54,12 +54,14 @@ pub async fn get(
 pub async fn get_by_label(
     db: crate::Pool,
     label: &str,
+    user_id: Id,
 ) -> Result<Vec<Id>, Box<dyn Error>> {
     let conn = db.get().await?;
 
     Ok(entities::table
         .select(entities::id)
         .inner_join(i18ns::table)
+        .filter(entities::viewer_entity.eq(user_id))
         .filter(i18ns::value.ilike(format!("%{}%", label)))
         .load(&*conn)?)
 }
@@ -79,10 +81,18 @@ pub async fn create(
 pub async fn remove(
     db: crate::Pool,
     entity_id: Id,
-) -> Result<(), Box<dyn Error>> {
+) -> Result<bool, Box<dyn Error>> {
     let conn = db.get().await?;
-    let entity = entities::table.find(entity_id).first(&*conn)?;
-    Ok(())
+    let entity: Option<Entity> =
+        entities::table.find(entity_id).first(&*conn).optional()?;
+    match entity {
+        None => Ok(false),
+        Some(entity) => {
+            // todo: remove link ref
+            diesel::delete(&entity).execute(&*conn)?;
+            Ok(true)
+        }
+    }
 }
 
 #[cfg(test)]
@@ -91,13 +101,6 @@ mod test {
 
     #[test]
     fn test_entity() -> Result<(), Box<dyn Error>> {
-        let time: crate::data_types::Time =
-            chrono::DateTime::parse_from_rfc2822(
-                "Mon, 02 Jan 2006 15:04:05 -0700",
-            )?;
-
-        let ret = serde_json::to_string(&time)?;
-        assert_eq!(ret, r#""2006-01-02T15:04:05-07:00""#);
         Ok(())
     }
 }
